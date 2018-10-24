@@ -17,13 +17,13 @@
 #include "solver.h"
 #include "utils.h"
 
-
+/**
+ * Prints correct usage of the program and optional parameters
+ */
 static void printUsage(void);
 
 
-/***********************
- * Funcao main, recebe parametros conforme especificado pelo usage
- ************************/ 
+// Parses input and call CG method
 int main(int argc, char **argv) {
   #ifdef LIKWID
     LIKWID_MARKER_INIT;
@@ -57,7 +57,6 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  // percorre parametros buscando os que foram definidos 
   for (int i = 3; i < argc; i += 2) {
     switch (argv[i][1]) {
       case 'i':
@@ -97,9 +96,7 @@ int main(int argc, char **argv) {
 }
 
 
-/***********************
- * Imprime o uso correto do programa
- ************************/ 
+//  Prints correct usage of the program and optional parameters
 static void printUsage(void) {
   fprintf(stderr, "\n----------------- cgSolver -----------------\n");
   fprintf(stderr, "usage: cgSolver <n> <bandwidth> <-o output_file> [-i max_iter] [-t tolerance]\n\n");
