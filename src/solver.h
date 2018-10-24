@@ -17,6 +17,12 @@
 #include "algorithm.h"
 
 
-bool run(global_t *values);
+/**
+ * Executes every procedure necessary for CG method
+ *
+ * @param global necessary set of variables used in cg method
+ * @return whether the execution was successful or not
+ */
+bool run(global_t *global);
 
 #endif

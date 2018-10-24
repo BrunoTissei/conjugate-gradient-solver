@@ -9,19 +9,12 @@
 #include "helper.h"
 
 
-/***********************
- * Gera diagonal aleatoria, deve ser chamado bandwidth / 2 vezes para representar a matriz
- *
- * N: tamanho do sistema linear
- * k: numero da diagonal, 0 = diagonal principal, 1 = acima/abaixo da diagonal, 2 = ...
- * kMax: numero de bandas do sistema linear
- * diag: vetor para armazenar os valores da diagonal. Deve ser alocado por quem chama a função.
- ***********************/
-bool generateRandomDiagonal(uint n, uint k, uint bandwidth, double *diag) {
+// Generates random single diagonal, must be called (bandwidth / 2) times to 
+// build complete matrix.
+bool generate_random_diagonal(uint n, uint k, uint bandwidth, double *diag) {
   if (!diag || n < 3 || bandwidth > n / 2 || k > bandwidth)
     return FALSE;
 
-  // garante valor dominante para diagonal principal
   double factor = (k == 0) ? ((double) (bandwidth - 1)) : (0.0);
   double inv_rand_max = 1.0 / (double) RAND_MAX;
 
@@ -32,13 +25,9 @@ bool generateRandomDiagonal(uint n, uint k, uint bandwidth, double *diag) {
 }
 
 
-/***********************
- * Gera vetor de termos independentes com a funcao fornecida
- *
- * N: tamanho do sistema linear
- * b: vetor de termos independentes do sistema linear  
- ***********************/
-void generateB(uint n, double *b) {
+// Generates vector of independent term, where the values are given by a
+// specific generator function.
+void generate_b(uint n, double *b) {
   double x;
   double pi = M_PI;
   double pi_x_2 = 2 * pi;
@@ -53,9 +42,7 @@ void generateB(uint n, double *b) {
 }
 
 
-/***********************
- * Retorna tempo em milisegundos atual
- ***********************/
+// Gets current time in milliseconds.
 double timestamp(void) {
   struct timeval tp;
   gettimeofday(&tp, NULL);

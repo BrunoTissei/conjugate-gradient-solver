@@ -9,13 +9,14 @@
 #include "algorithm.h"
 
 
-/***********************
- * Efetua a multiplicacao entre vetor e matriz (Ax = y)
+/**
+ * Computes multiplication of band matrix (A) and vector (x) (Ax = y).
  *
- * mat: matrix (A)
- * vec: vetor que multiplicara a matrix (x)
- * ans: vetor de resposta da multiplicacao (y)
- ***********************/
+ * @param global necessary set of variables used in cg method (n and bandwidth)
+ * @param value arrays and matrix composing linear system (main diagonal, A)
+ * @param v vector multiplied by matrix 
+ * @param ans resulting vector
+ */
 static inline void multiply_matrix_vector(global_t *global, value_t *value, double *v, double *ans) {
   #ifdef LIKWID
     LIKWID_MARKER_START("MMV");
@@ -28,6 +29,7 @@ static inline void multiply_matrix_vector(global_t *global, value_t *value, doub
   __m256d tmat, tmul;
   __m256d tvec1, tvec2, tans1, tans2;
 
+  // Multiply main diagonal
   for (i = 0; i < n - (n % 4); i += 4) {
     tmat = _mm256_load_pd(value->main + i);
     tvec1 = _mm256_load_pd(v + i);
@@ -39,6 +41,8 @@ static inline void multiply_matrix_vector(global_t *global, value_t *value, doub
   for ( ; i < n; ++i)
     ans[i] = value->main[i] * v[i];
 
+
+  // Multiply rest of matrix
   for (i = k = 0, c = 1; i < n - 1; ++i, c -= (limit - 1)) {
     tans1 = _mm256_setzero_pd();
     tvec2 = _mm256_set_pd(v[i], v[i], v[i], v[i]);
@@ -69,12 +73,14 @@ static inline void multiply_matrix_vector(global_t *global, value_t *value, doub
 }
 
 
-/***********************
- * Retorna produto escalar entre dois vetores (a^t * b)
+/**
+ * Computes dot product between two vectors.
  *
- * a: vetor a
- * b: vetor b
- ***********************/
+ * @param n size of vectors
+ * @param a vector a
+ * @param b vector b
+ * @return dot product
+ */
 static inline double dot_product(uint n, double *a, double *b) {
   #ifdef LIKWID
     LIKWID_MARKER_START("MVV");
@@ -106,13 +112,14 @@ static inline double dot_product(uint n, double *a, double *b) {
 }
 
 
-/***********************
- * Efetua subtracao entre dois vetores (a - b) e armazena o resultado em outro vetor
+/**
+ * Computes subtraction between two vectors.
  *
- * ans: resultado da operacao a - b
- * a: vetor a
- * b: vetor b
- ***********************/
+ * @param n size of vectors
+ * @param ans resulting vector (a - b)
+ * @param a vector a
+ * @param b vector b
+ */
 static inline void subtract_vector(uint n, double *ans, double *a, double *b) {
   uint i;
 
@@ -131,14 +138,15 @@ static inline void subtract_vector(uint n, double *ans, double *a, double *b) {
 }
 
 
-/***********************
- * Efetua adicao entre dois vetores (a + b*scalar) onde scalar eh um numero escalar
+/**
+ * Computes addition between a vector and a scaled one.
  *
- * ans: resultado da operacao a + b*scalar
- * a: vetor
- * b: vetor que sera multiplicado pelo escalar
- * scalar: numero escalar
- ***********************/
+ * @param n size of vectors
+ * @param ans resulting vector (a + b*scalar)
+ * @param a vector a
+ * @param b vector b to be scaled
+ * @param scalar number that will scale vector b
+ */
 static inline void add_scaled_vector(uint n, double *ans, double *a, double *b, double scalar) {
   uint i;
 
@@ -158,12 +166,13 @@ static inline void add_scaled_vector(uint n, double *ans, double *a, double *b, 
 }
 
 
-/***********************
- * Faz a atribuicao de vetores (vec = val)
+/**
+ * Attributes a vector to another one.
  *
- * vec: vetor que recebe valores
- * val: vetor que contem os valores
- ***********************/
+ * @param n size of vectors
+ * @param vec vector that receives values
+ * @param val vector containing values
+ */
 static inline void attribute_vector(uint n, double *vec, double *val) {
   uint i;
 
@@ -179,14 +188,8 @@ static inline void attribute_vector(uint n, double *vec, double *val) {
 }
 
 
-/***********************
- * Calcula solucao do sistema linear (Ax = b) usando o metodo do gradiente conjulgado
- * e preenche o vetor x com a resposta
- *
- * A: matriz
- * b: vetor de termos independentes
- * x: vetor de incognitas
- ***********************/
+// Computes solution of linear system (Ax = b) using the conjugate gradient method
+// and fills value->x with answer.
 void conjugate_gradient(global_t *global, value_t *value, iteration_t *iteration) {
   uint i = 0;
   uint n = global->n;
@@ -196,7 +199,7 @@ void conjugate_gradient(global_t *global, value_t *value, iteration_t *iteration
   double *x = value->x;
   double tolerance = global->tolerance;
 
-  // Vetores necessarios para o metodo
+  // Necessary arrays for method
   double *r = (double *) _mm_malloc(n * sizeof(double), 32);
   double *v = (double *) _mm_malloc(n * sizeof(double), 32);
   double *z = (double *) _mm_malloc(n * sizeof(double), 32);
@@ -208,7 +211,7 @@ void conjugate_gradient(global_t *global, value_t *value, iteration_t *iteration
   attribute_vector(n, r, b);
   attribute_vector(n, v, r);
 
-  // Erro calculado pela norma euclidiana do residuo 
+  // Error obtained from euclidean norm of residual
   curr_iter = dot_product(n, r, r);
   error = sqrt(curr_iter);
 
@@ -225,14 +228,16 @@ void conjugate_gradient(global_t *global, value_t *value, iteration_t *iteration
 
     time_r = timestamp();
 
-    // Calcula residuo exato novamente...
+    // Either compute exact residual
     if (curr_iter < 1e-60) {
       multiply_matrix_vector(global, value, x, r);
       subtract_vector(n, r, b, r);
-    } else // ... ou ajusta o que ja foi calculado
+
+    // Or adjust what was already computed
+    } else
       add_scaled_vector(n, r, r, z, -alfa);
 
-    // Armazena tempo de calculo do residuo
+    // Store compute time of residual
     iteration->time_r[i] = timestamp() - time_r;
 
     past_iter = curr_iter;
@@ -240,22 +245,21 @@ void conjugate_gradient(global_t *global, value_t *value, iteration_t *iteration
 
     add_scaled_vector(n, v, r, v, (curr_iter / past_iter));
 
-    // Calcula erro relativo aproximado
+    // Computes relative approximate error
     error = fabs(sqrt(curr_iter) - sqrt(past_iter));
 
     #ifdef LIKWID
       LIKWID_MARKER_STOP("CG");
     #endif
 
-    // Armazena tempo de calculo do gradiente conjugado
+    // Store compute of iteration
     iteration->time_cg[i] = (timestamp() - time_cg);
 
-    // Armazena erro e norma do residuo por iteracao
+    // Store error and residual norm per iteration
     iteration->norm[i]  = sqrt(curr_iter);
     iteration->error[i] = error;
   }
 
-  // Redefine max_iter para definir o limite da impressao das iteracoes
   global->max_iter = i;
 
   _mm_free(r);

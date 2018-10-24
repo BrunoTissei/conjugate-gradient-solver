@@ -9,19 +9,47 @@
 #include "solver.h"
 
 
-// cabecalho das funcoes locais para uso nesse arquivo
+/**
+ * Allocates memory to be used in computation
+ *
+ * @param global necessary set of variables used in cg method
+ * @param value arrays and matrix composing linear system
+ * @param iteration arrays of metadata to describe iterations
+ */
 static void init_memory(global_t *global, value_t *value, iteration_t *iteration);
 
+
+/**
+ * Frees all allocated memory
+ *
+ * @param global necessary set of variables used in cg method
+ * @param value arrays and matrix composing linear system
+ * @param iteration arrays of metadata to describe iterations
+ */
 static void free_memory(global_t *global, value_t *value, iteration_t *iteration);
 
+
+/**
+ * Outputs metadata and result to output_file
+ *
+ * @param global necessary set of variables used in cg method
+ * @param value arrays and matrix composing linear system
+ * @param iteration arrays of metadata to describe iterations
+ */
 static void output_result(global_t *global, value_t *value, iteration_t *iteration);
 
+
+/**
+ * Calls CG method and output function
+ *
+ * @param global necessary set of variables used in cg method
+ * @param value arrays and matrix composing linear system
+ * @param iteration arrays of metadata to describe iterations
+ */
 static void solve(global_t *global, value_t *value, iteration_t *iteration);
 
 
-/***********************
- * Executa programa principal
- ***********************/
+// Executes every procedure necessary for CG method
 bool run(global_t *global) {
   bool worked = TRUE;
 
@@ -38,7 +66,7 @@ bool run(global_t *global) {
     auxA[i] = (double *) _mm_malloc(n * sizeof(double), 32);
 
   for (uint i = 0; i <= limit; ++i)
-    worked &= generateRandomDiagonal(n, i, bandwidth, auxA[i]);
+    worked &= generate_random_diagonal(n, i, bandwidth, auxA[i]);
 
   int k = 0;
   for (uint i = 0; i < n; ++i)
@@ -52,10 +80,9 @@ bool run(global_t *global) {
     _mm_free(auxA[i]);
   _mm_free(auxA);
 
-  // Continua com o calculo apenas se todas a diagonais foram 
-  // geradas corretamente
+
   if (worked) {
-    generateB(n, value.b);
+    generate_b(n, value.b);
     for (uint i = 0; i < n; ++i)
       value.x[i] = 0.0;
 
@@ -70,9 +97,7 @@ bool run(global_t *global) {
 }
 
 
-/***********************
- * Aloca memora necessaria para execucao do algoritmo
- ***********************/
+// Allocates memory to be used in computation
 static void init_memory(global_t *global, value_t *value, iteration_t *iteration) {
   uint n = global->n;
   uint bandwidth = global->bandwidth;
@@ -91,9 +116,7 @@ static void init_memory(global_t *global, value_t *value, iteration_t *iteration
 }
 
 
-/***********************
- * Libera toda memoria que foi alocada
- ***********************/
+// Frees all allocated memory
 static void free_memory(global_t *global, value_t *value, iteration_t *iteration) {
   _mm_free(value->main);
   _mm_free(value->A);
@@ -109,9 +132,7 @@ static void free_memory(global_t *global, value_t *value, iteration_t *iteration
 }
 
 
-/***********************
- * Imprime os resultados no arquivo especificado pelo usuario
- ***********************/
+// Outputs metadata and result to output_file
 static void output_result(global_t *global, value_t *value, iteration_t *iteration) {
   uint n = global->n;
   uint max_iter = global->max_iter;
@@ -124,7 +145,8 @@ static void output_result(global_t *global, value_t *value, iteration_t *iterati
   avg_time_cg = min_time_cg = max_time_cg = iteration->time_cg[0];
   avg_time_r  = min_time_r  = max_time_r  = iteration->time_r[0];
   
-  // Calcula menor, maior e media dos tempos do metodo e de residuo
+
+  // Compute min, max and avg times for the output
   for (uint i = 1; i < max_iter; ++i) {
     min_time_cg = min(min_time_cg, iteration->time_cg[i]);
     max_time_cg = max(max_time_cg, iteration->time_cg[i]);
@@ -139,7 +161,8 @@ static void output_result(global_t *global, value_t *value, iteration_t *iterati
   avg_time_cg /= max_iter;
   avg_time_r  /= max_iter;
 
-  // Todos os resultados sao impressos no output_file
+
+  // Output data
   fprintf(output_file, "###########\n");
 
   fprintf(output_file, "# CG compute time (min, avg, max): %g %g %g\n", 
@@ -162,9 +185,7 @@ static void output_result(global_t *global, value_t *value, iteration_t *iterati
 }
 
 
-/***********************
- * Executa o algoritmo e chama a funcao que mostra os resultados
- ***********************/
+// Calls CG method and output function
 static void solve(global_t *global, value_t *value, iteration_t *iteration) {
   conjugate_gradient(global, value, iteration);
   output_result(global, value, iteration);
