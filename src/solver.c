@@ -8,7 +8,6 @@
 
 #include "solver.h"
 
-
 /**
  * Allocates memory to be used in computation
  *
@@ -17,7 +16,6 @@
  * @param iteration arrays of metadata to describe iterations
  */
 static void init_memory(global_t *global, value_t *value, iteration_t *iteration);
-
 
 /**
  * Frees all allocated memory
@@ -28,7 +26,6 @@ static void init_memory(global_t *global, value_t *value, iteration_t *iteration
  */
 static void free_memory(global_t *global, value_t *value, iteration_t *iteration);
 
-
 /**
  * Outputs metadata and result to output_file
  *
@@ -38,7 +35,6 @@ static void free_memory(global_t *global, value_t *value, iteration_t *iteration
  */
 static void output_result(global_t *global, value_t *value, iteration_t *iteration);
 
-
 /**
  * Calls CG method and output function
  *
@@ -47,7 +43,6 @@ static void output_result(global_t *global, value_t *value, iteration_t *iterati
  * @param iteration arrays of metadata to describe iterations
  */
 static void solve(global_t *global, value_t *value, iteration_t *iteration);
-
 
 // Executes every procedure necessary for CG method
 bool run(global_t *global) {
@@ -96,7 +91,6 @@ bool run(global_t *global) {
   return TRUE;
 }
 
-
 // Allocates memory to be used in computation
 static void init_memory(global_t *global, value_t *value, iteration_t *iteration) {
   uint n = global->n;
@@ -115,7 +109,6 @@ static void init_memory(global_t *global, value_t *value, iteration_t *iteration
   iteration->time_r  = (double *) _mm_malloc(max_iter * sizeof(double), 32);
 }
 
-
 // Frees all allocated memory
 static void free_memory(global_t *global, value_t *value, iteration_t *iteration) {
   _mm_free(value->main);
@@ -131,7 +124,6 @@ static void free_memory(global_t *global, value_t *value, iteration_t *iteration
   fclose(global->output_file);
 }
 
-
 // Outputs metadata and result to output_file
 static void output_result(global_t *global, value_t *value, iteration_t *iteration) {
   uint n = global->n;
@@ -145,7 +137,6 @@ static void output_result(global_t *global, value_t *value, iteration_t *iterati
   avg_time_cg = min_time_cg = max_time_cg = iteration->time_cg[0];
   avg_time_r  = min_time_r  = max_time_r  = iteration->time_r[0];
   
-
   // Compute min, max and avg times for the output
   for (uint i = 1; i < max_iter; ++i) {
     min_time_cg = min(min_time_cg, iteration->time_cg[i]);
@@ -183,7 +174,6 @@ static void output_result(global_t *global, value_t *value, iteration_t *iterati
     fprintf(output_file, "%.14g ", value->x[i]);
   fprintf(output_file, "\n");
 }
-
 
 // Calls CG method and output function
 static void solve(global_t *global, value_t *value, iteration_t *iteration) {

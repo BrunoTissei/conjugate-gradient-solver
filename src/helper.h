@@ -16,7 +16,6 @@
 #include "solver.h"
 #include "utils.h"
 
-
 /**
  * Generates random single diagonal, must be called (bandwidth / 2) times to 
  * build complete matrix.
@@ -29,7 +28,6 @@
  */
 bool generate_random_diagonal(uint n, uint k, uint bandwidth, double *diag);
 
-
 /**
  * Generates vector of independent term, where the values are given by a
  * specific generator function.
@@ -38,7 +36,6 @@ bool generate_random_diagonal(uint n, uint k, uint bandwidth, double *diag);
  * @param b array that stores computed values
  */
 void generate_b(uint n, double *b);
-
 
 /**
  * Gets current time in milliseconds.

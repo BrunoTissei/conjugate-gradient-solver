@@ -16,7 +16,6 @@
 #include "helper.h"
 #include "algorithm.h"
 
-
 /**
  * Executes every procedure necessary for CG method
  *

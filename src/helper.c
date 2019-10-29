@@ -8,7 +8,6 @@
 
 #include "helper.h"
 
-
 // Generates random single diagonal, must be called (bandwidth / 2) times to 
 // build complete matrix.
 bool generate_random_diagonal(uint n, uint k, uint bandwidth, double *diag) {
@@ -23,7 +22,6 @@ bool generate_random_diagonal(uint n, uint k, uint bandwidth, double *diag) {
 
   return TRUE;
 }
-
 
 // Generates vector of independent term, where the values are given by a
 // specific generator function.
@@ -40,7 +38,6 @@ void generate_b(uint n, double *b) {
     accum_pi += pi;
   }
 }
-
 
 // Gets current time in milliseconds.
 double timestamp(void) {

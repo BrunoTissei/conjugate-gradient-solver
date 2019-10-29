@@ -15,7 +15,6 @@
 typedef unsigned int uint;
 typedef unsigned short bool;
 
-
 typedef struct value_t {
   double *main;
   double *A;
@@ -23,13 +22,11 @@ typedef struct value_t {
   double *x;
 } value_t;
 
-
 typedef struct global_t {
   double tolerance;
   FILE *output_file;
   uint n, bandwidth, max_iter;
 } global_t;
-
 
 typedef struct iteration_t {
   double *norm;

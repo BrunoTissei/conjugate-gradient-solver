@@ -22,7 +22,6 @@
  */
 static void printUsage(void);
 
-
 // Parses input and call CG method
 int main(int argc, char **argv) {
   #ifdef LIKWID
@@ -94,7 +93,6 @@ int main(int argc, char **argv) {
 
   return 0;
 }
-
 
 //  Prints correct usage of the program and optional parameters
 static void printUsage(void) {
