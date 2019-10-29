@@ -8,7 +8,6 @@
 
 #include "algorithm.h"
 
-
 /**
  * Computes multiplication of band matrix (A) and vector (x) (Ax = y).
  *
@@ -72,7 +71,6 @@ static inline void multiply_matrix_vector(global_t *global, value_t *value, doub
   #endif
 }
 
-
 /**
  * Computes dot product between two vectors.
  *
@@ -111,7 +109,6 @@ static inline double dot_product(uint n, double *a, double *b) {
   return ans;
 }
 
-
 /**
  * Computes subtraction between two vectors.
  *
@@ -122,7 +119,6 @@ static inline double dot_product(uint n, double *a, double *b) {
  */
 static inline void subtract_vector(uint n, double *ans, double *a, double *b) {
   uint i;
-
   __m256d ta, tb, res;
 
   for (i = 0 ; i < n - (n % 4); i += 4) {
@@ -136,7 +132,6 @@ static inline void subtract_vector(uint n, double *ans, double *a, double *b) {
   for ( ; i < n; ++i)
     ans[i] = a[i] - b[i];
 }
-
 
 /**
  * Computes addition between a vector and a scaled one.
@@ -165,7 +160,6 @@ static inline void add_scaled_vector(uint n, double *ans, double *a, double *b, 
     ans[i] = a[i] + (b[i] * scalar);
 }
 
-
 /**
  * Attributes a vector to another one.
  *
@@ -186,7 +180,6 @@ static inline void attribute_vector(uint n, double *vec, double *val) {
   for ( ; i < n; ++i)
     vec[i] = val[i];
 }
-
 
 // Computes solution of linear system (Ax = b) using the conjugate gradient method
 // and fills value->x with answer.

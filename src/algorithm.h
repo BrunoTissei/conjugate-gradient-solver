@@ -21,10 +21,8 @@
 #include "utils.h"
 #include "helper.h"
 
-
 #define max(a, b) ((a > b) ? a : b)
 #define min(a, b) ((a < b) ? a : b)
-
 
 /**
  * Computes solution of linear system (Ax = b) using the conjugate gradient method
